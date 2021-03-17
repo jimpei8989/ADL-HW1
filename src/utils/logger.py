@@ -2,12 +2,17 @@ import sys
 import logging
 from pathlib import Path
 
+from utils.color_strings import GREY, LOG_DATETIME, RESET
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 _formatter = logging.Formatter(
-    fmt="%(asctime)s [%(levelname)8s] - %(message)s (%(filename)s:%(lineno)s)",
+    fmt=(
+        f"{LOG_DATETIME}%(asctime)s{RESET} [%(levelname)8s] - %(message)s"
+        f"{GREY}(%(filename)s:%(lineno)s){RESET}"
+    ),
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
