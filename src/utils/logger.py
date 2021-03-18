@@ -3,16 +3,16 @@ import logging
 from pathlib import Path
 
 from utils.color_strings import (
-    GREY,
     LOG_CRITICAL,
     LOG_DATETIME,
     LOG_DEBUG,
+    LOG_FILENAME,
     LOG_INFO,
     LOG_WARNING,
     RESET,
 )
 
-_FORMAT = "%(asctime)s %(levelname)s - %(message)s %(filename_lineno)s"
+_FORMAT = "%(asctime)s %(levelname)s - %(message)s (%(filename_lineno)s)"
 
 _DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -41,14 +41,14 @@ class ColoredFormatter(logging.Formatter):
         return color + msg + RESET if color else msg
 
     def format(self, record):
-        record.filename_lineno = f"({record.filename}:{record.lineno})"
+        record.filename_lineno = f"{record.filename}:{record.lineno}"
 
         if self.colored:
             record.levelname = self.apply_color(
                 self.level_mapping.get(record.levelname, record.levelname),
                 self.color_mapping.get(record.levelname, None),
             )
-            record.filename_lineno = self.apply_color(record.filename_lineno, GREY)
+            record.filename_lineno = self.apply_color(record.filename_lineno, LOG_FILENAME)
 
         return super().format(record)
 
@@ -73,3 +73,16 @@ def set_file_handler(file: Path):
     handler.setLevel(logging.DEBUG)
     handler.setFormatter(ColoredFormatter(fmt=_FORMAT, datefmt=_DATE_FORMAT))
     logger.addHandler(handler)
+
+
+def test_logger():
+    logger.setLevel(logging.DEBUG)
+    _stream_handler.setLevel(logging.DEBUG)
+    logger.debug("DEBUG")
+    logger.info("INFO")
+    logger.warning("INFO")
+    logger.critical("CRITICAL")
+
+
+if __name__ == "__main__":
+    test_logger()
