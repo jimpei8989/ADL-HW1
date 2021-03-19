@@ -15,3 +15,9 @@ __pycache__/
 /checkpoints/*
 !/checkpoints/.gitempty
 
+/models/*
+!/models/.gitempty
+
+/.vscode/
+*.swp
+
