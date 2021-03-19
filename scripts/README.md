@@ -1,0 +1,1 @@
+Scripts in this directory will not be run during training / inference. They may use prohibitted packages.
