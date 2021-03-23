@@ -17,9 +17,10 @@ class Tokenizer:
     def __init__(
         self, word_list: Optional[List[str]] = None, embeddings: Optional[np.ndarray] = None
     ):
-        if word_list:
-            if self.UNKNOWN_TOKEN not in word_list:
-                word_list = [self.UNKNOWN_TOKEN] + word_list
+        if word_list and self.UNKNOWN_TOKEN not in word_list:
+            word_list = [self.UNKNOWN_TOKEN] + word_list
+
+            if embeddings is not None:
                 embeddings = np.concatenate([embeddings.mean(axis=0).reshape(1, -1), embeddings])
 
         self.word_list = word_list
@@ -37,3 +38,12 @@ class Tokenizer:
 
     def tokenize(self, text):
         return text.split()
+
+
+def test():
+    tokenizer = Tokenizer(["hello", "world"])
+    print(tokenizer("hello world yeah"))
+
+
+if __name__ == "__main__":
+    test()

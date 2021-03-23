@@ -1,4 +1,7 @@
+from pathlib import Path
 from torch.utils.data import Dataset
+
+from utils.io import json_load
 
 
 class IntentDataset(Dataset):
@@ -155,10 +158,14 @@ class IntentDataset(Dataset):
         "yes",
     )
 
+    @classmethod
+    def load(cls, dataset_dir: Path, split: str, **kwargs):
+        data = json_load(dataset_dir / f"{split}.json")
+        return cls(data, kwargs)
+
     def __init__(self, data, tokenizer=None):
         self.data = data
         self.tokenizer = tokenizer
-
         self.intent_to_label = {label: i for i, label in enumerate(self.LABELS)}
 
     def __len__(self):
@@ -168,5 +175,5 @@ class IntentDataset(Dataset):
         sample = self.data[index]
         return {
             "input_ids": self.tokenizer(sample["text"]),
-            "label": self.intent_to_label(sample["intent"]),
+            "label": self.intent_to_label[sample["intent"]],
         }
