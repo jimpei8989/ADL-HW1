@@ -99,8 +99,9 @@ def main(args):
             )
         )
 
-        logger.info(f"Predicting finished, saving to {args.predict_csv}")
-        to_intent_csv(predictions, args.predict_csv)
+        if args.predict_csv:
+            logger.info(f"Predicting finished, saving to {args.predict_csv}")
+            to_intent_csv(predictions, args.predict_csv)
 
 
 def parse_arguments():
@@ -116,9 +117,7 @@ def parse_arguments():
     parser.add_argument(
         "--dataset_dir", type=Path, default=Path(f"dataset/intent-classification/")
     )
-    parser.add_argument(
-        "--predict_csv", type=Path, default=Path(f"predictions/intent-classification/{now}.csv")
-    )
+    parser.add_argument("--predict_csv", type=Path)
 
     # Resume training
     parser.add_argument("--resume_checkpoint", type=Path)

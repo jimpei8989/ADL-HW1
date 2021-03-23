@@ -4,7 +4,7 @@
         "dataset_dir": "dataset/intent-classification/"
     },
     "trainer": {
-        "epochs": 25,
+        "epochs": 20,
         "learning_rate": 0.0005,
         "weight_decay": 0.00001
     },
@@ -15,9 +15,9 @@
         "num_embeddings": 400001,
         "embedding_dim": 300,
         "rnn_style": "GRU",
-        "rnn_num_layers": 3,
+        "rnn_num_layers": 1,
         "output_dim": 150,
-        "hidden_dim": 128,
+        "hidden_dim": 64,
         "bidirectional": true
     },
     "misc": {

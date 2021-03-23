@@ -181,6 +181,6 @@ class IntentDataset(Dataset):
         }
 
         if "intent" in sample:
-            ret |= {"label": self.intent_to_label[sample["intent"]]}
+            ret.update({"label": self.intent_to_label[sample["intent"]]})
 
         return ret

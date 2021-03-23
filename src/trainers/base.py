@@ -20,7 +20,7 @@ class BaseTrainer:
         learning_rate=1e-3,
         weight_decay=1e-5,
         checkpoint_dir: Optional[Path] = None,
-        checkpoint_freq: int = 10,
+        checkpoint_freq: int = 5,
         device=None,
     ):
         self.model = model
@@ -107,7 +107,7 @@ class BaseTrainer:
         for epoch in range(self.cur_epoch, self.total_epochs + 1):
             self.cur_epoch = epoch
 
-            logger.info(f"Epoch {epoch:02d} / {self.total_epochs:02d}")
+            logger.info(f"Epoch {epoch:2d} / {self.total_epochs:2d}")
             train_time, (train_loss, train_metrics) = self.run_epoch(
                 train_dataloader, split="train", train=True, epoch=epoch
             )
