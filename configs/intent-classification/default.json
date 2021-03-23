@@ -4,15 +4,15 @@
         "dataset_dir": "dataset/intent-classification/"
     },
     "trainer": {
-        "epochs": 50,
-        "learning_rate": 0.001,
+        "epochs": 25,
+        "learning_rate": 0.0005,
         "weight_decay": 0.00001
     },
     "word_embedding": {
         "save_dir": "models/glove-wiki-gigaword-300"
     },
     "model": {
-        "num_embeddings": 40001,
+        "num_embeddings": 400001,
         "embedding_dim": 300,
         "rnn_style": "GRU",
         "rnn_num_layers": 3,

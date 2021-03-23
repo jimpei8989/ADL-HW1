@@ -30,10 +30,15 @@ class BaseTrainer:
 
         self.optimizer = Adam(self.model.parameters(), lr=learning_rate, weight_decay=weight_decay)
         self.scheduler = None
+
         self.checkpoint_dir = checkpoint_dir
         self.checkpoint_freq = checkpoint_freq
+        if self.checkpoint_dir:
+            self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
         self.device = device
+
+        logger.info(self.model)
 
     @abstractmethod
     def metrics_fn(self, y_hat, labels):
@@ -65,6 +70,7 @@ class BaseTrainer:
     @timer
     def run_epoch(self, dataloader, split="", train=False, epoch=0):
         self.model.train() if train else self.model.eval()
+        self.model.to(self.device)
 
         all_losses = []
         all_metrics = defaultdict(list)
@@ -94,7 +100,7 @@ class BaseTrainer:
             self.cur_epoch = epoch
 
             logger.info(f"Epoch {epoch:02d} / {self.total_epochs:02d}")
-            train_time, train_loss, train_metrics = self.run_epoch(
+            train_time, (train_loss, train_metrics) = self.run_epoch(
                 train_dataloader, split="train", train=True, epoch=epoch
             )
             logger.info(
@@ -102,11 +108,11 @@ class BaseTrainer:
                 + " | ".join(map(lambda p: f"{p[0]}: {p[1]:.3f}", sorted(train_metrics.items())))
             )
 
-            val_time, val_loss, val_metrics = self.run_epoch(
+            val_time, (val_loss, val_metrics) = self.run_epoch(
                 val_dataloader, split="val", epoch=epoch
             )
             logger.info(
-                f"Val   | {val_time:7.3f}s | loss: {val_loss:.3f} | {val_metrics}"
+                f"Val   | {val_time:7.3f}s | loss: {val_loss:.3f} | "
                 + " | ".join(map(lambda p: f"{p[0]}: {p[1]:.3f}", sorted(val_metrics.items())))
             )
 

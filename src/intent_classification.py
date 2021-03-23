@@ -1,11 +1,12 @@
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
-from pprint import pformat
 
+import torch
 from torch.utils.data import DataLoader
 
 from datasets.intent_dataset import IntentDataset
+from datasets.utils import create_batch
 from functions.dataset_analyze import analyze_dataset_intent
 from models.intent_classifier import IntentClassifier
 from models.tokenizer import Tokenizer
@@ -31,11 +32,20 @@ def main(args):
             dataset,
             batch_size=config.misc.batch_size,
             num_workers=config.misc.num_workers,
+            collate_fn=create_batch,
         )
 
     if args.do_train:
-        model = IntentClassifier(**config.model)
-        trainer = IntentTrainer(model, **config.trainer)
+        model = IntentClassifier(
+            embedding_initial_weights=torch.as_tensor(tokenizer.embeddings, dtype=torch.float),
+            **config.model,
+        )
+        trainer = IntentTrainer(
+            model,
+            checkpoint_dir=config.checkpoint_dir,
+            device=args.device,
+            **config.trainer,
+        )
 
         if args.resume_checkpoint:
             trainer.load_checkpoint(args.resume_checkpoint)
@@ -52,6 +62,7 @@ def main(args):
 
     if args.do_evaluate:
         model = IntentClassifier.from_checkpoint(args.checkpoint_dir)
+        trainer = IntentTrainer(model, device=args.device)
         trainer.evaluate(
             to_dataloader(
                 IntentDataset.load(config.dataset.dataset_dir, "train", tokenizer=tokenizer),
@@ -67,6 +78,7 @@ def main(args):
 
     if args.do_predict:
         model = IntentClassifier.from_checkpoint(args.checkpoint_dir)
+        trainer = IntentTrainer(model, device=args.device, **config.trainer)
         raise NotImplementedError
 
 
@@ -84,7 +96,7 @@ def parse_arguments():
         "--predict_csv", type=Path, default=Path(f"predictions/intent-classification/{now}.csv")
     )
 
-    # Misc
+    # Resume training
     parser.add_argument("--resume_checkpoint", type=Path)
 
     # Actions
@@ -93,7 +105,12 @@ def parse_arguments():
     parser.add_argument("--do_evaluate", action="store_true")
     parser.add_argument("--do_predict", action="store_true")
 
-    return parser.parse_args()
+    # Misc
+    parser.add_argument("--gpu", action="store_true")
+
+    args = parser.parse_args()
+    args.device = torch.device("cuda" if args.gpu else "cpu")
+    return args
 
 
 if __name__ == "__main__":

@@ -28,7 +28,7 @@ class IntentClassifier(BaseModel):
             probability: torch.FloatTensor of shape (BS, C)
         """
         _, hidden_state = super().forward(input_ids)
-        hidden_state = hidden_state.view(hidden_state.shape[0], -1)
+        hidden_state = hidden_state.reshape(hidden_state.shape[0], -1)
         return self.fc(hidden_state)
 
 
