@@ -1,3 +1,6 @@
+from typing import Dict
+from pathlib import Path
+
 import torch
 from torch import nn, Tensor
 from torch.nn import Embedding, RNN, LSTM, GRU
@@ -10,18 +13,24 @@ RNN_CLASS_MAPPING = {"RNN": RNN, "LSTM": LSTM, "GRU": GRU}
 
 class BaseModel(nn.Module):
     @classmethod
-    def from_checkpoint(cls, config=None, checkpoint_path=None):
-        model = cls(**config)
+    def from_saved(cls, config: Dict, saved_path: Path):
+        state_dict = torch.load(saved_path)
+        return cls.from_state_dict(config, state_dict)
+
+    @classmethod
+    def from_checkpoint(cls, config: Dict, checkpoint_path: Path):
         checkpoint = torch.load(checkpoint_path)
+        return cls.from_state_dict(config, checkpoint["model_state_dict"])
 
-        logger.info(f"Loading checkpoint {checkpoint_path}")
-
+    @classmethod
+    def from_state_dict(cls, config: Dict, state_dict: Dict):
+        model = cls(**config)
         for key in filter(
-            lambda key: key in checkpoint and isinstance(model.__getattr__(key), nn.Module),
+            lambda key: key in state_dict and isinstance(model.__getattr__(key), nn.Module),
             model.keys(),
         ):
-            logger.info(f"loading {key} from checkpoint")
-            model.__getattr__(key).load_state_dict(checkpoint[key])
+            logger.info(f"Loading {key} from state_dict")
+            model.__getattr__(key).load_state_dict(state_dict[key])
 
     def __init__(
         self,
