@@ -45,8 +45,12 @@ class BaseTrainer:
         return {}
 
     @abstractmethod
-    def run_train_batch(self, batch):
+    def run_batch(self, batch):
         return 0, {}
+
+    @abstractmethod
+    def run_predict_batch(self, batch):
+        return []
 
     def load_checkpoint(self, checkpoint_path: Path):
         logger.info(f"Loading checkpoint from {checkpoint_path}")
@@ -94,6 +98,10 @@ class BaseTrainer:
 
         return np.mean(all_losses), {k: np.mean(v) for k, v in all_metrics.items()}
 
+    @staticmethod
+    def format_metrics(metrics):
+        return " | ".join(map(lambda p: f"{p[0]}: {p[1]:.3f}", sorted(metrics.items())))
+
     def train(self, train_dataloader, val_dataloader):
         logger.info(f"Training model for {self.total_epochs} epochs...")
         for epoch in range(self.cur_epoch, self.total_epochs + 1):
@@ -105,7 +113,7 @@ class BaseTrainer:
             )
             logger.info(
                 f"Train | {train_time:7.3f}s | loss: {train_loss:.3f} | "
-                + " | ".join(map(lambda p: f"{p[0]}: {p[1]:.3f}", sorted(train_metrics.items())))
+                f"{self.format_metrics(train_metrics)}"
             )
 
             val_time, (val_loss, val_metrics) = self.run_epoch(
@@ -113,20 +121,28 @@ class BaseTrainer:
             )
             logger.info(
                 f"Val   | {val_time:7.3f}s | loss: {val_loss:.3f} | "
-                + " | ".join(map(lambda p: f"{p[0]}: {p[1]:.3f}", sorted(val_metrics.items())))
+                f"{self.format_metrics(val_metrics)}"
             )
 
             if epoch % self.checkpoint_freq == 0:
                 self.save_checkpoint(self.checkpoint_dir / f"checkpoint_{epoch:03d}.pt")
 
+        self.model.save_weights(self.checkpoint_dir / "model_weights.pt")
+
     def evaluate(self, dataloader, split=""):
         logger.info(f"Evaluating model using {split} data...")
-        duration, loss, metrics = self.run_epoch(dataloader, split=split, train=False, epoch=-1)
+        duration, (loss, metrics) = self.run_epoch(dataloader, split=split, train=False, epoch=-1)
         logger.info(
-            f"{split[:5]:5s} | {duration:7.3f}s | loss: {loss:.3f} | "
-            + " | ".join(map(lambda p: f"{p[0]}: {p[1]:.3f}", sorted(metrics.items())))
+            f"{split[:5]:5s} | {duration:7.3f}s | loss: {loss:.3f} | {self.format_metrics(metrics)}"
         )
 
     def predict(self, dataloader):
         logger.info("Predicting")
-        pass
+
+        predictions = []
+        self.model.to(self.device)
+        with torch.no_grad():
+            for batch in tqdmm(dataloader, desc="Predicting"):
+                predictions += self.run_predict_batch(batch)
+
+        return predictions

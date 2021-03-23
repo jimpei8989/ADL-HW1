@@ -14,6 +14,7 @@ from trainers.intent_trainer import IntentTrainer
 
 from utils.config import Config
 from utils.logger import logger
+from utils.prediction import to_intent_csv
 
 
 def main(args):
@@ -22,10 +23,11 @@ def main(args):
     if args.do_analyze:
         analyze_dataset_intent(args.dataset_dir)
 
-    config = Config.load(args.config_json)
-    logger.info(f"Config: {config}")
+    if args.do_train or args.do_evaluate or args.do_predict:
+        config = Config.load(args.config_json)
+        logger.info(f"Config: {config}")
 
-    tokenizer = Tokenizer.from_pretrained(config.word_embedding.save_dir)
+        tokenizer = Tokenizer.from_pretrained(config.word_embedding.save_dir)
 
     def to_dataloader(dataset, **kwargs):
         return DataLoader(
@@ -48,7 +50,7 @@ def main(args):
         )
 
         if args.resume_checkpoint:
-            trainer.load_checkpoint(args.resume_checkpoint)
+            trainer.load_checkpoint(config.resume_checkpoint)
 
         trainer.train(
             to_dataloader(
@@ -61,7 +63,13 @@ def main(args):
         )
 
     if args.do_evaluate:
-        model = IntentClassifier.from_checkpoint(args.checkpoint_dir)
+        if args.specify_checkpoint:
+            model = IntentClassifier.from_checkpoint(config.model, args.specify_checkpoint)
+        else:
+            model = IntentClassifier.load_weights(
+                config.model, config.checkpoint_dir / "model_weights.pt"
+            )
+
         trainer = IntentTrainer(model, device=args.device)
         trainer.evaluate(
             to_dataloader(
@@ -77,9 +85,22 @@ def main(args):
         )
 
     if args.do_predict:
-        model = IntentClassifier.from_checkpoint(args.checkpoint_dir)
+        if args.specify_checkpoint:
+            model = IntentClassifier.from_checkpoint(config.model, args.specify_checkpoint)
+        else:
+            model = IntentClassifier.load_weights(
+                config.model, config.checkpoint_dir / "model_weights.pt"
+            )
         trainer = IntentTrainer(model, device=args.device, **config.trainer)
-        raise NotImplementedError
+
+        predictions = trainer.predict(
+            to_dataloader(
+                IntentDataset.load(config.dataset.dataset_dir, "test_release", tokenizer=tokenizer)
+            )
+        )
+
+        logger.info(f"Predicting finished, saving to {args.predict_csv}")
+        to_intent_csv(predictions, args.predict_csv)
 
 
 def parse_arguments():
@@ -93,11 +114,15 @@ def parse_arguments():
 
     # Filesystem
     parser.add_argument(
+        "--dataset_dir", type=Path, default=Path(f"dataset/intent-classification/")
+    )
+    parser.add_argument(
         "--predict_csv", type=Path, default=Path(f"predictions/intent-classification/{now}.csv")
     )
 
     # Resume training
     parser.add_argument("--resume_checkpoint", type=Path)
+    parser.add_argument("--specify_checkpoint", type=Path)
 
     # Actions
     parser.add_argument("--do_analyze", action="store_true")

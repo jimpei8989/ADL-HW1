@@ -13,24 +13,22 @@ RNN_CLASS_MAPPING = {"RNN": RNN, "LSTM": LSTM, "GRU": GRU}
 
 class BaseModel(nn.Module):
     @classmethod
-    def from_saved(cls, config: Dict, saved_path: Path):
-        state_dict = torch.load(saved_path)
+    def load_weights(cls, config: Dict, weights_path: Path):
+        logger.info(f"Loading weights from {weights_path}")
+        state_dict = torch.load(weights_path)
         return cls.from_state_dict(config, state_dict)
 
     @classmethod
     def from_checkpoint(cls, config: Dict, checkpoint_path: Path):
+        logger.info(f"Loading checkpoint from {checkpoint_path}")
         checkpoint = torch.load(checkpoint_path)
         return cls.from_state_dict(config, checkpoint["model_state_dict"])
 
     @classmethod
     def from_state_dict(cls, config: Dict, state_dict: Dict):
         model = cls(**config)
-        for key in filter(
-            lambda key: key in state_dict and isinstance(model.__getattr__(key), nn.Module),
-            model.keys(),
-        ):
-            logger.info(f"Loading {key} from state_dict")
-            model.__getattr__(key).load_state_dict(state_dict[key])
+        model.load_state_dict(state_dict)
+        return model
 
     def __init__(
         self,
@@ -72,3 +70,7 @@ class BaseModel(nn.Module):
         output = output.permute(1, 0, 2)
         hidden_state = hidden_state.permute(1, 0, 2)
         return output, hidden_state
+
+    def save_weights(self, weights_path: Path):
+        logger.info(f"Saving model weights to {weights_path}")
+        torch.save(self.state_dict(), weights_path)

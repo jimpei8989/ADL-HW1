@@ -175,7 +175,12 @@ class IntentDataset(Dataset):
 
     def __getitem__(self, index: int):
         sample = self.data[index]
-        return {
+        ret = {
+            "id": sample["id"],
             "input_ids": torch.as_tensor(self.tokenizer(sample["text"]), dtype=torch.long),
-            "label": self.intent_to_label[sample["intent"]],
         }
+
+        if "intent" in sample:
+            ret |= {"label": self.intent_to_label[sample["intent"]]}
+
+        return ret
