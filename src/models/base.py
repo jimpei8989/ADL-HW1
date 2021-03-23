@@ -37,8 +37,8 @@ class BaseModel(nn.Module):
         num_embeddings: int = 1024,
         embedding_dim: int = 128,
         rnn_style: str = "LSTM",
+        rnn_num_layers: int = 1,
         hidden_dim: int = 128,
-        num_layers: int = 1,
         bidirectional: bool = False,
     ):
         super().__init__()
@@ -46,12 +46,12 @@ class BaseModel(nn.Module):
         self.embedding = Embedding(num_embeddings, embedding_dim)
 
         self.rnn = RNN_CLASS_MAPPING[rnn_style](
-            embedding_dim, hidden_dim, num_layers, bidirectional=bidirectional
+            embedding_dim, hidden_dim, rnn_num_layers, bidirectional=bidirectional
         )
 
         num_directions = 2 if bidirectional else 1
         self.rnn_output_dim = num_directions * hidden_dim
-        self.hidden_state_dim = num_layers * num_directions * hidden_dim
+        self.hidden_state_dim = rnn_num_layers * num_directions * hidden_dim
 
     def forward(self, input_ids: Tensor):
         """
@@ -60,7 +60,8 @@ class BaseModel(nn.Module):
 
         Returns
             output: torch.FloatTensor of shape (BS, L, num_directions*hidden_dim)
-            hidden_state: torch.FloatTensor of shape (BS, num_layers*num_directions, hidden_size)
+            hidden_state: torch.FloatTensor of shape (BS, rnn_num_layers*num_directions,
+                hidden_size)
         """
         embedded = self.embedding(input_ids)
         output, hidden_state = self.rnn(embedded)

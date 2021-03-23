@@ -5,7 +5,7 @@ from models.base import BaseModel
 from models.utils import build_fc_layers
 
 
-class IntentClassificationModel(BaseModel):
+class IntentClassifier(BaseModel):
     def __init__(
         self,
         fc_layers: List[int] = [],
@@ -33,7 +33,7 @@ class IntentClassificationModel(BaseModel):
 
 
 def test():
-    model = IntentClassificationModel()
+    model = IntentClassifier()
     print(model)
 
 

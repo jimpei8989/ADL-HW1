@@ -4,8 +4,8 @@ from trainers.base import BaseTrainer
 
 
 class IntentTrainer(BaseTrainer):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
         self.criterion = CrossEntropyLoss()
 
     def run_batch(self, batch):

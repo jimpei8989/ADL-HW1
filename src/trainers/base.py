@@ -28,7 +28,7 @@ class BaseTrainer:
         self.cur_epoch = 1
         self.total_epochs = epochs
 
-        self.optimizer = Adam(lr=learning_rate, weight_decay=weight_decay)
+        self.optimizer = Adam(self.model.parameters(), lr=learning_rate, weight_decay=weight_decay)
         self.scheduler = None
         self.checkpoint_dir = checkpoint_dir
         self.checkpoint_freq = checkpoint_freq
@@ -71,7 +71,7 @@ class BaseTrainer:
 
         with torch.set_grad_enabled(train):
             for batch in tqdmm(
-                dataloader, desc=f"Epoch {epoch:02d} / {self.epochs:02d} [{split}]"
+                dataloader, desc=f"Epoch {epoch:02d} / {self.total_epochs:02d} [{split}]"
             ):
                 if train:
                     self.optimizer.zero_grad()
@@ -89,11 +89,11 @@ class BaseTrainer:
         return np.mean(all_losses), {k: np.mean(v) for k, v in all_metrics.items()}
 
     def train(self, train_dataloader, val_dataloader):
-        logger.info(f"Training for {self.epochs} epochs")
+        logger.info(f"Training model for {self.total_epochs} epochs...")
         for epoch in range(self.cur_epoch, self.total_epochs + 1):
             self.cur_epoch = epoch
 
-            logger.info(f"Epoch {epoch:02d} / {self.epochs:02d}")
+            logger.info(f"Epoch {epoch:02d} / {self.total_epochs:02d}")
             train_time, train_loss, train_metrics = self.run_epoch(
                 train_dataloader, split="train", train=True, epoch=epoch
             )
@@ -114,7 +114,7 @@ class BaseTrainer:
                 self.save_checkpoint(self.checkpoint_dir / f"checkpoint_{epoch:03d}.pt")
 
     def evaluate(self, dataloader, split=""):
-        logger.info("Evaluation")
+        logger.info(f"Evaluating model using {split} data...")
         duration, loss, metrics = self.run_epoch(dataloader, split=split, train=False, epoch=-1)
         logger.info(
             f"{split[:5]:5s} | {duration:7.3f}s | loss: {loss:.3f} | "
@@ -122,4 +122,5 @@ class BaseTrainer:
         )
 
     def predict(self, dataloader):
+        logger.info("Predicting")
         pass
