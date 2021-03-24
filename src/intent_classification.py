@@ -38,6 +38,7 @@ def main(args):
             batch_size=config.misc.batch_size,
             num_workers=config.misc.num_workers,
             collate_fn=create_batch,
+            **kwargs,
         )
 
     if args.do_train:
