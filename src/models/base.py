@@ -35,6 +35,7 @@ class BaseModel(nn.Module):
         num_embeddings: int = 1024,
         embedding_dim: int = 128,
         embedding_initial_weights: Optional[Tensor] = None,
+        freeze_embedding: bool = False,
         rnn_style: str = "LSTM",
         rnn_num_layers: int = 1,
         hidden_dim: int = 128,
@@ -45,6 +46,10 @@ class BaseModel(nn.Module):
         self.embedding = Embedding(num_embeddings, embedding_dim)
         if embedding_initial_weights is not None:
             self.embedding.load_state_dict({"weight": embedding_initial_weights})
+
+        if freeze_embedding:
+            for param in self.embedding.parameters():
+                param.requires_grad = False
 
         self.rnn = RNN_CLASS_MAPPING[rnn_style](
             embedding_dim, hidden_dim, rnn_num_layers, bidirectional=bidirectional

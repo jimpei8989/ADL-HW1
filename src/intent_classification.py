@@ -12,12 +12,15 @@ from models.intent_classifier import IntentClassifier
 from models.tokenizer import Tokenizer
 from trainers.intent_trainer import IntentTrainer
 
+from utils import set_seed
 from utils.config import Config
 from utils.logger import logger
 from utils.prediction import to_intent_csv
 
 
 def main(args):
+    set_seed(args.seed)
+
     logger.info(args)
 
     if args.do_analyze:
@@ -131,6 +134,7 @@ def parse_arguments():
 
     # Misc
     parser.add_argument("--gpu", action="store_true")
+    parser.add_argument("--seed", default=0x06902029)
 
     args = parser.parse_args()
     args.device = torch.device("cuda" if args.gpu else "cpu")
