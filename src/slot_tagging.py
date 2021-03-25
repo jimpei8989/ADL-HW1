@@ -9,12 +9,12 @@ from datasets.utils import create_batch
 from functions.dataset_analyze import analyze_dataset_slot
 from models.slot_tagger import SlotTagger
 from models.tokenizer import Tokenizer
-from trainers.intent_trainer import IntentTrainer
+from trainers.slot_trainer import SlotTrainer
 
 from utils import set_seed
 from utils.config import Config
 from utils.logger import logger
-from utils.prediction import to_intent_csv
+from utils.prediction import to_slot_csv
 
 
 def main(args):
@@ -45,7 +45,7 @@ def main(args):
             embedding_initial_weights=torch.as_tensor(tokenizer.embeddings, dtype=torch.float),
             **config.model,
         )
-        trainer = IntentTrainer(
+        trainer = SlotTrainer(
             model,
             checkpoint_dir=config.checkpoint_dir,
             device=args.device,
@@ -57,54 +57,54 @@ def main(args):
 
         trainer.train(
             to_dataloader(
-                IntentDataset.load(config.dataset.dataset_dir, "train", tokenizer=tokenizer),
+                SlotDataset.load(config.dataset.dataset_dir, "train", tokenizer=tokenizer),
                 shuffle=True,
             ),
             to_dataloader(
-                IntentDataset.load(config.dataset.dataset_dir, "eval", tokenizer=tokenizer),
+                SlotDataset.load(config.dataset.dataset_dir, "eval", tokenizer=tokenizer),
             ),
         )
 
     if args.do_evaluate:
         if args.specify_checkpoint:
-            model = IntentClassifier.from_checkpoint(config.model, args.specify_checkpoint)
+            model = SlotTagger.from_checkpoint(config.model, args.specify_checkpoint)
         else:
-            model = IntentClassifier.load_weights(
+            model = SlotTagger.load_weights(
                 config.model, config.checkpoint_dir / "model_weights.pt"
             )
 
-        trainer = IntentTrainer(model, device=args.device)
+        trainer = SlotTrainer(model, device=args.device)
         trainer.evaluate(
             to_dataloader(
-                IntentDataset.load(config.dataset.dataset_dir, "train", tokenizer=tokenizer),
+                SlotDataset.load(config.dataset.dataset_dir, "train", tokenizer=tokenizer),
             ),
             split="train",
         )
         trainer.evaluate(
             to_dataloader(
-                IntentDataset.load(config.dataset.dataset_dir, "eval", tokenizer=tokenizer),
+                SlotDataset.load(config.dataset.dataset_dir, "eval", tokenizer=tokenizer),
             ),
             split="val",
         )
 
     if args.do_predict:
         if args.specify_checkpoint:
-            model = IntentClassifier.from_checkpoint(config.model, args.specify_checkpoint)
+            model = SlotTagger.from_checkpoint(config.model, args.specify_checkpoint)
         else:
-            model = IntentClassifier.load_weights(
+            model = SlotTagger.load_weights(
                 config.model, config.checkpoint_dir / "model_weights.pt"
             )
-        trainer = IntentTrainer(model, device=args.device, **config.trainer)
+        trainer = SlotTrainer(model, device=args.device, **config.trainer)
 
         predictions = trainer.predict(
             to_dataloader(
-                IntentDataset.load(config.dataset.dataset_dir, "test_release", tokenizer=tokenizer)
+                SlotDataset.load(config.dataset.dataset_dir, "test_release", tokenizer=tokenizer)
             )
         )
 
         if args.predict_csv:
             logger.info(f"Predicting finished, saving to {args.predict_csv}")
-            to_intent_csv(predictions, args.predict_csv)
+            to_slot_csv(predictions, args.predict_csv)
 
 
 def parse_arguments():

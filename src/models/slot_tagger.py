@@ -26,7 +26,7 @@ class SlotTagger(BaseModel):
             input_ids: torch.LongTensor of shape (BS, L)
 
         Returns
-            probability: torch.FloatTensor of shape (BS, C)
+            probability: torch.FloatTensor of shape (BS, L, C)
         """
         output, _ = super().forward(input_ids)
         return self.fc(output)
