@@ -52,7 +52,11 @@ class BaseModel(nn.Module):
                 param.requires_grad = False
 
         self.rnn = RNN_CLASS_MAPPING[rnn_style](
-            embedding_dim, hidden_dim, rnn_num_layers, bidirectional=bidirectional
+            embedding_dim,
+            hidden_dim,
+            rnn_num_layers,
+            bidirectional=bidirectional,
+            batch_first=True,
         )
 
         num_directions = 2 if bidirectional else 1
@@ -71,8 +75,6 @@ class BaseModel(nn.Module):
         """
         embedded = self.embedding(input_ids)
         output, hidden_state = self.rnn(embedded)
-
-        output = output.permute(1, 0, 2)
         hidden_state = hidden_state.permute(1, 0, 2)
         return output, hidden_state
 

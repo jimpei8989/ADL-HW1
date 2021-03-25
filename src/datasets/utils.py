@@ -9,7 +9,7 @@ PADDING = {
 
 def create_batch(samples):
     ret = {
-        k: pad_sequence([s[k] for s in samples], batch_first=False, padding_value=PADDING[k])
+        k: pad_sequence([s[k] for s in samples], batch_first=True, padding_value=PADDING[k])
         if k in PADDING
         else default_collate([s[k] for s in samples])
         for k in samples[0]

@@ -6,7 +6,7 @@
     "trainer": {
         "epochs": 50,
         "learning_rate": 0.0005,
-        "weight_decay": 0.0001
+        "weight_decay": 0.00001
     },
     "word_embedding": {
         "save_dir": "models/glove-wiki-gigaword-300"
@@ -17,7 +17,7 @@
         "rnn_style": "GRU",
         "rnn_num_layers": 1,
         "output_dim": 150,
-        "hidden_dim": 16,
+        "hidden_dim": 32,
         "bidirectional": true
     },
     "misc": {
