@@ -12,13 +12,14 @@
         "save_dir": "models/glove-wiki-gigaword-300"
     },
     "model": {
-        "num_embeddings": 400001,
+        "num_embeddings": 400002,
         "embedding_dim": 300,
         "rnn_style": "GRU",
         "rnn_num_layers": 1,
         "output_dim": 150,
-        "hidden_dim": 32,
-        "bidirectional": true
+        "hidden_dim": 64,
+        "bidirectional": true,
+        "freeze_embedding": true
     },
     "misc": {
         "batch_size": 256,
