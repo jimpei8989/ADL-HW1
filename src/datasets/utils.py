@@ -15,4 +15,5 @@ def create_batch(samples):
         for k in samples[0]
     }
     ret.update({"batch_size": len(samples)})
+    ret.update({"lengthes": [len(s["input_ids"]) for s in samples]})
     return ret

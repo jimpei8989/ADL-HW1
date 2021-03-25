@@ -25,9 +25,9 @@ class SlotTrainer(BaseTrainer):
             {
                 "id": batch["id"][i],
                 "tag_scores": prediction_scores[i].tolist(),
-                "tags": predictions[i].item(),
+                "tags": predictions[i].tolist()[:l],
             }
-            for i in range(batch["batch_size"])
+            for i, l in enumerate(batch["lengthes"])
         ]
 
     def metrics_fn(self, y_hat, labels):
