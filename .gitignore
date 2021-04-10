@@ -12,11 +12,12 @@ __pycache__/
 /dataset/*
 !/dataset/.gitempty
 
-/checkpoints/*
-!/checkpoints/.gitempty
+/checkpoints
 
 /models/*
 !/models/.gitempty
+
+/predictions
 
 /.vscode/
 *.swp

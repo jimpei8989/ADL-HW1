@@ -1,10 +1,10 @@
 {
-    "checkpoint_dir": "checkpoints/intent-classification/default",
+    "checkpoint_dir": "checkpoints/intent-classification/default_256",
     "dataset": {
         "dataset_dir": "dataset/intent-classification/"
     },
     "trainer": {
-        "epochs": 50,
+        "epochs": 25,
         "learning_rate": 0.0005,
         "weight_decay": 0.00001
     },
@@ -17,7 +17,7 @@
         "rnn_style": "GRU",
         "rnn_num_layers": 1,
         "output_dim": 150,
-        "hidden_dim": 64,
+        "hidden_dim": 256,
         "bidirectional": true,
         "freeze_embedding": false
     },

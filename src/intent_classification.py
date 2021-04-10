@@ -1,5 +1,4 @@
 from argparse import ArgumentParser
-from datetime import datetime
 from pathlib import Path
 
 import torch
@@ -109,7 +108,6 @@ def main(args):
 
 
 def parse_arguments():
-    now = datetime.now().strftime("%m%d-%H%M")
     parser = ArgumentParser()
 
     # Config
