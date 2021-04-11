@@ -117,7 +117,7 @@ def parse_arguments():
 
     # Filesystem
     parser.add_argument(
-        "--dataset_dir", type=Path, default=Path(f"dataset/intent-classification/")
+        "--dataset_dir", type=Path, default=Path("dataset/intent-classification/")
     )
     parser.add_argument("--predict_csv", type=Path)
 
