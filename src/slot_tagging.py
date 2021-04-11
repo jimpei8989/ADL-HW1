@@ -57,11 +57,11 @@ def main(args):
 
         trainer.train(
             to_dataloader(
-                SlotDataset.load(config.dataset.dataset_dir, "train", tokenizer=tokenizer),
+                SlotDataset.load(config.dataset.dataset_dir / "train.json", tokenizer=tokenizer),
                 shuffle=True,
             ),
             to_dataloader(
-                SlotDataset.load(config.dataset.dataset_dir, "eval", tokenizer=tokenizer),
+                SlotDataset.load(config.dataset.dataset_dir / "eval.json", tokenizer=tokenizer),
             ),
         )
 
@@ -76,13 +76,13 @@ def main(args):
         trainer = SlotTrainer(model, device=args.device)
         trainer.evaluate(
             to_dataloader(
-                SlotDataset.load(config.dataset.dataset_dir, "train", tokenizer=tokenizer),
+                SlotDataset.load(config.dataset.dataset_dir / "train.json", tokenizer=tokenizer),
             ),
             split="train",
         )
         trainer.evaluate(
             to_dataloader(
-                SlotDataset.load(config.dataset.dataset_dir, "eval", tokenizer=tokenizer),
+                SlotDataset.load(config.dataset.dataset_dir / "eval.json", tokenizer=tokenizer),
             ),
             split="val",
         )
@@ -97,9 +97,7 @@ def main(args):
         trainer = SlotTrainer(model, device=args.device, **config.trainer)
 
         predictions = trainer.predict(
-            to_dataloader(
-                SlotDataset.load(config.dataset.dataset_dir, "test_release", tokenizer=tokenizer)
-            )
+            to_dataloader(SlotDataset.load(args.test_json, tokenizer=tokenizer))
         )
 
         if args.predict_csv:
@@ -117,6 +115,7 @@ def parse_arguments():
 
     # Filesystem
     parser.add_argument("--dataset_dir", type=Path, default=Path("dataset/slot-tagging/"))
+    parser.add_argument("--test_json", type=Path)
     parser.add_argument("--predict_csv", type=Path)
 
     # Resume training
@@ -135,6 +134,10 @@ def parse_arguments():
 
     args = parser.parse_args()
     args.device = torch.device("cuda" if args.gpu else "cpu")
+
+    if args.test_json is None:
+        args.test_json = args.dataset_dir / "test_release.json"
+
     return args
 
 
