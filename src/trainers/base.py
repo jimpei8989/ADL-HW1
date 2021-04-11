@@ -7,6 +7,7 @@ import numpy as np
 import torch
 from torch.optim import Adam
 
+from utils.io import json_dump
 from utils.logger import logger
 from utils.timer import timer
 from utils.tqdmm import tqdmm
@@ -96,7 +97,7 @@ class BaseTrainer:
                 for k, v in metrics.items():
                     all_metrics[k].append(v)
 
-        return np.mean(all_losses), {k: np.mean(v) for k, v in all_metrics.items()}
+        return np.mean(all_losses).item(), {k: np.mean(v).item() for k, v in all_metrics.items()}
 
     @staticmethod
     def format_metrics(metrics):
@@ -104,6 +105,7 @@ class BaseTrainer:
 
     def train(self, train_dataloader, val_dataloader):
         logger.info(f"Training model for {self.total_epochs} epochs...")
+        training_log = []
         for epoch in range(self.cur_epoch, self.total_epochs + 1):
             self.cur_epoch = epoch
 
@@ -127,7 +129,20 @@ class BaseTrainer:
             if epoch % self.checkpoint_freq == 0:
                 self.save_checkpoint(self.checkpoint_dir / f"checkpoint_{epoch:03d}.pt")
 
+            training_log.append(
+                {
+                    "epoch": epoch,
+                    "train_time": train_time,
+                    "train_loss": train_loss,
+                    "train_metrics": train_metrics,
+                    "val_time": val_time,
+                    "val_loss": val_loss,
+                    "val_metrics": val_metrics,
+                }
+            )
+
         self.model.save_weights(self.checkpoint_dir / "model_weights.pt")
+        json_dump(training_log, self.checkpoint_dir / "train_log.json")
 
     def evaluate(self, dataloader, split=""):
         logger.info(f"Evaluating model using {split} data...")
