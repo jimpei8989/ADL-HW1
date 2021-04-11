@@ -9,15 +9,15 @@
         "weight_decay": 0.00001
     },
     "word_embedding": {
-        "save_dir": "models/glove-wiki-gigaword-300"
+        "save_dir": "models/refined-glove-wiki-gigaword-300"
     },
     "model": {
-        "num_embeddings": 400002,
+        "num_embeddings": 8365,
         "embedding_dim": 300,
         "rnn_style": "GRU",
         "rnn_num_layers": 4,
         "output_dim": 150,
-        "hidden_dim": 512,
+        "hidden_dim":768,
         "bidirectional": true
     },
     "misc": {
