@@ -18,6 +18,18 @@ def main(args):
     print("Size of dictionary", len(index_to_key))
     print("Shape of vectors", vectors.shape)
 
+    if args.used_vocab_txt:
+        print(f"Refining using {args.used_vocab_txt}")
+        with open(args.used_vocab_txt) as f:
+            used = set(line.strip() for line in f.readlines())
+
+        refined = [(i, v) for i, v in enumerate(index_to_key) if v in used]
+        index_to_key = [v for i, v in refined]
+        vectors = np.stack([vectors[i] for i, v in refined])
+
+    print("Size of refined dictionary", len(index_to_key))
+    print("Shape of refined vectors", vectors.shape)
+
     with open(args.dump_dir / "dictionary.json", "w") as f:
         json.dump(index_to_key, f)
 
@@ -27,6 +39,7 @@ def main(args):
 def parse_arguments():
     parser = ArgumentParser()
     parser.add_argument("--model_name", default="glove-wiki-gigaword-300")
+    parser.add_argument("--used_vocab_txt", default="datasets/vocab.txt")
     parser.add_argument("--dump_dir", type=Path)
 
     args = parser.parse_args()
