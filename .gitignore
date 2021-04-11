@@ -16,6 +16,7 @@ __pycache__/
 
 /models/*
 !/models/.gitempty
+!/models/refined-glove-wiki-gigaword-300
 
 /predictions
 
