@@ -34,7 +34,7 @@ def main(args):
     def to_dataloader(dataset, **kwargs):
         return DataLoader(
             dataset,
-            batch_size=config.misc.batch_size,
+            batch_size=args.override_batch_size or config.misc.batch_size,
             num_workers=config.misc.num_workers,
             collate_fn=create_batch,
             **kwargs,
@@ -57,11 +57,11 @@ def main(args):
 
         trainer.train(
             to_dataloader(
-                IntentDataset.load(config.dataset.dataset_dir, "train", tokenizer=tokenizer),
+                IntentDataset.load(config.dataset.dataset_dir / "train.json", tokenizer=tokenizer),
                 shuffle=True,
             ),
             to_dataloader(
-                IntentDataset.load(config.dataset.dataset_dir, "eval", tokenizer=tokenizer),
+                IntentDataset.load(config.dataset.dataset_dir / "eval.json", tokenizer=tokenizer),
             ),
         )
 
@@ -76,13 +76,13 @@ def main(args):
         trainer = IntentTrainer(model, device=args.device)
         trainer.evaluate(
             to_dataloader(
-                IntentDataset.load(config.dataset.dataset_dir, "train", tokenizer=tokenizer),
+                IntentDataset.load(config.dataset.dataset_dir / "train.json", tokenizer=tokenizer),
             ),
             split="train",
         )
         trainer.evaluate(
             to_dataloader(
-                IntentDataset.load(config.dataset.dataset_dir, "eval", tokenizer=tokenizer),
+                IntentDataset.load(config.dataset.dataset_dir / "eval.json", tokenizer=tokenizer),
             ),
             split="val",
         )
@@ -97,9 +97,7 @@ def main(args):
         trainer = IntentTrainer(model, device=args.device, **config.trainer)
 
         predictions = trainer.predict(
-            to_dataloader(
-                IntentDataset.load(config.dataset.dataset_dir, "test_release", tokenizer=tokenizer)
-            )
+            to_dataloader(IntentDataset.load(args.test_json, tokenizer=tokenizer))
         )
 
         if args.predict_csv:
@@ -116,9 +114,8 @@ def parse_arguments():
     )
 
     # Filesystem
-    parser.add_argument(
-        "--dataset_dir", type=Path, default=Path("dataset/intent-classification/")
-    )
+    parser.add_argument("--dataset_dir", type=Path, default=Path("dataset/intent-classification/"))
+    parser.add_argument("--test_json", type=Path)
     parser.add_argument("--predict_csv", type=Path)
 
     # Resume training
@@ -134,9 +131,14 @@ def parse_arguments():
     # Misc
     parser.add_argument("--gpu", action="store_true")
     parser.add_argument("--seed", default=0x06902029)
+    parser.add_argument("--override_batch_size", type=int)
 
     args = parser.parse_args()
     args.device = torch.device("cuda" if args.gpu else "cpu")
+
+    if args.test_json is None:
+        args.test_json = args.dataset_dir / "test_release.json"
+
     return args
 
 

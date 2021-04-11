@@ -161,8 +161,8 @@ class IntentDataset(Dataset):
     )
 
     @classmethod
-    def load(cls, dataset_dir: Path, split: str, **kwargs):
-        data = json_load(dataset_dir / f"{split}.json")
+    def load(cls, json_path: Path, **kwargs):
+        data = json_load(json_path)
         return cls(data, **kwargs)
 
     def __init__(self, data, tokenizer=None):
