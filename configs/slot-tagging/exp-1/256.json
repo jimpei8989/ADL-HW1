@@ -1,21 +1,22 @@
 {
-    "checkpoint_dir": "checkpoints/slot-tagging/default_256_2layers",
+    "checkpoint_dir": "checkpoints/slot-tagging/exp-1/256",
     "dataset": {
         "dataset_dir": "dataset/slot-tagging/"
     },
     "trainer": {
         "epochs": 25,
         "learning_rate": 0.0005,
-        "weight_decay": 0.00001
+        "weight_decay": 0.00001,
+        "checkpoint_freq": 1
     },
     "word_embedding": {
-        "save_dir": "models/glove-wiki-gigaword-300"
+        "save_dir": "models/refined-glove-wiki-gigaword-300"
     },
     "model": {
-        "num_embeddings": 400002,
+        "num_embeddings": 8365,
         "embedding_dim": 300,
         "rnn_style": "GRU",
-        "rnn_num_layers": 2,
+        "rnn_num_layers": 4,
         "output_dim": 9,
         "hidden_dim": 256,
         "bidirectional": true
