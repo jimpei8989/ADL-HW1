@@ -1,25 +1,25 @@
 {
-    "checkpoint_dir": "checkpoints/intent-classification/default_256",
+    "checkpoint_dir": "checkpoints/intent-classification/exp1/256",
     "dataset": {
         "dataset_dir": "dataset/intent-classification/"
     },
     "trainer": {
         "epochs": 25,
         "learning_rate": 0.0005,
-        "weight_decay": 0.00001
+        "weight_decay": 0.00001,
+        "checkpoint_freq": 1
     },
     "word_embedding": {
-        "save_dir": "models/glove-wiki-gigaword-300"
+        "save_dir": "models/refined-glove-wiki-gigaword-300"
     },
     "model": {
-        "num_embeddings": 400002,
+        "num_embeddings": 8365,
         "embedding_dim": 300,
         "rnn_style": "GRU",
-        "rnn_num_layers": 1,
+        "rnn_num_layers": 4,
         "output_dim": 150,
         "hidden_dim": 256,
-        "bidirectional": true,
-        "freeze_embedding": false
+        "bidirectional": true
     },
     "misc": {
         "batch_size": 256,
