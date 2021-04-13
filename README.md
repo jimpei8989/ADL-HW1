@@ -50,3 +50,10 @@ python3 src/slot_tagging.py \
     --config configs/slot-tagging/final.json \
     --do_train --gpu
 ```
+
+### Results
+
+| Task                  | Public Score | Private Score | Ranking |
+| --------------------- | ------------ | ------------- | ------- |
+| Intent classification | 0.90000      | 0.89733       | 69 / 91 |
+| Slot tagging          | 0.78498      | 0.79635       | 30 / 89 |
