@@ -1,0 +1,28 @@
+{
+    "checkpoint_dir": "checkpoints/slot-tagging/exp-1/8L",
+    "dataset": {
+        "dataset_dir": "dataset/slot-tagging/"
+    },
+    "trainer": {
+        "epochs": 25,
+        "learning_rate": 0.0005,
+        "weight_decay": 0.00001,
+        "checkpoint_freq": 1
+    },
+    "word_embedding": {
+        "save_dir": "models/refined-glove-wiki-gigaword-300"
+    },
+    "model": {
+        "num_embeddings": 8365,
+        "embedding_dim": 300,
+        "rnn_style": "GRU",
+        "rnn_num_layers": 8,
+        "output_dim": 9,
+        "hidden_dim": 256,
+        "bidirectional": true
+    },
+    "misc": {
+        "batch_size": 256,
+        "num_workers": 4
+    }
+}
