@@ -1,12 +1,13 @@
 {
-    "checkpoint_dir": "checkpoints/intent-classification/final",
+    "checkpoint_dir": "checkpoints/intent-classification/exp-3/on",
     "dataset": {
         "dataset_dir": "dataset/intent-classification/"
     },
     "trainer": {
-        "epochs": 10,
+        "epochs": 25,
         "learning_rate": 0.0005,
-        "weight_decay": 0.00001
+        "weight_decay": 0.00001,
+        "checkpoint_freq": 1
     },
     "word_embedding": {
         "save_dir": "models/refined-glove-wiki-gigaword-300"
@@ -17,7 +18,7 @@
         "rnn_style": "GRU",
         "rnn_num_layers": 4,
         "output_dim": 150,
-        "hidden_dim": 768,
+        "hidden_dim": 256,
         "bidirectional": true
     },
     "misc": {
