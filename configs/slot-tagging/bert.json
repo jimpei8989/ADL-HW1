@@ -1,0 +1,20 @@
+{
+    "checkpoint_dir": "checkpoints/slot-tagging/bert",
+    "dataset": {
+        "dataset_dir": "dataset/slot-tagging/"
+    },
+    "trainer": {
+        "epochs": 50,
+        "learning_rate": 0.00002,
+        "weight_decay": 0.00001
+    },
+    "model": {
+        "bert_name": "bert-base-uncased",
+        "output_dim": 9,
+        "activation": null
+    },
+    "misc": {
+        "batch_size": 64,
+        "num_workers": 4
+    }
+}
