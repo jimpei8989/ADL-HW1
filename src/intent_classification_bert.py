@@ -74,10 +74,12 @@ def main(args):
 
     if args.do_evaluate:
         if args.specify_checkpoint:
-            model = IntentClassifierBert.from_checkpoint(config.model, args.specify_checkpoint)
+            model = IntentClassifierBert.from_checkpoint(
+                config.model, args.specify_checkpoint, device=args.device
+            )
         else:
             model = IntentClassifierBert.load_weights(
-                config.model, config.checkpoint_dir / "model_weights.pt"
+                config.model, config.checkpoint_dir / "model_weights.pt", device=args.device
             )
 
         trainer = IntentTrainer(model, device=args.device)
@@ -104,10 +106,12 @@ def main(args):
 
     if args.do_predict:
         if args.specify_checkpoint:
-            model = IntentClassifierBert.from_checkpoint(config.model, args.specify_checkpoint)
+            model = IntentClassifierBert.from_checkpoint(
+                config.model, args.specify_checkpoint, device=args.device
+            )
         else:
             model = IntentClassifierBert.load_weights(
-                config.model, config.checkpoint_dir / "model_weights.pt"
+                config.model, config.checkpoint_dir / "model_weights.pt", device=args.device
             )
         trainer = IntentTrainer(model, device=args.device, **config.trainer)
 
