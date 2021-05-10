@@ -11,7 +11,7 @@ from utils.logger import logger
 RNN_CLASS_MAPPING = {"RNN": RNN, "LSTM": LSTM, "GRU": GRU}
 
 
-class BaseModel(nn.Module):
+class BaseBaseModel:
     @classmethod
     def load_weights(cls, config: Dict, weights_path: Path):
         logger.info(f"Loading weights from {weights_path}")
@@ -30,6 +30,8 @@ class BaseModel(nn.Module):
         model.load_state_dict(state_dict)
         return model
 
+
+class BaseModel(nn.Module, BaseBaseModel):
     def __init__(
         self,
         num_embeddings: int = 1024,

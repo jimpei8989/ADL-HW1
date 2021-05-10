@@ -165,10 +165,11 @@ class IntentDataset(Dataset):
         data = json_load(json_path)
         return cls(data, **kwargs)
 
-    def __init__(self, data, tokenizer=None):
+    def __init__(self, data, tokenizer=None, is_bert_tokenizer=False):
         self.data = data
         self.tokenizer = tokenizer
         self.intent_to_label = {label: i for i, label in enumerate(self.LABELS)}
+        self.is_bert_tokenizer = is_bert_tokenizer
 
     def __len__(self):
         return len(self.data)
@@ -177,7 +178,11 @@ class IntentDataset(Dataset):
         sample = self.data[index]
         ret = {
             "id": sample["id"],
-            "input_ids": torch.as_tensor(self.tokenizer(sample["text"]), dtype=torch.long),
+            "input_ids": (
+                torch.as_tensor(self.tokenizer(sample["text"]), dtype=torch.long)
+                if not self.is_bert_tokenizer
+                else torch.as_tensor(self.tokenizer(sample["text"])["input_ids"], dtype=torch.long)
+            ),
         }
 
         if "intent" in sample:
